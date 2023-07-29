@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mapster;
+using MapsterBug.Dtos;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MapsterBug.Controllers;
 
@@ -19,15 +21,39 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    public WeatherForecast GetOrigial()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        return GenerateData();
+    }
+
+    [HttpGet("GetWeatherForecastDto1")]
+    public DtoV1 GetDto1()
+    {
+        var data = GenerateData();
+        return data.Adapt<DtoV1>();
+    }
+
+    [HttpGet("GetWeatherForecastDto2")]
+    public DtoV2 GetDto2()
+    {
+        var data = GenerateData();
+        return data.Adapt<DtoV2>();
+    }
+
+    private WeatherForecast GenerateData()
+    {
+        return new WeatherForecast
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Date = DateOnly.FromDateTime(DateTime.Now),
             TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+            Summary = Summaries[Random.Shared.Next(Summaries.Length)],
+            AreaCoordinates = new AreaCoordinates(
+                Random.Shared.NextDouble().ToString(),
+                Random.Shared.NextDouble().ToString(),
+                Random.Shared.NextDouble().ToString(),
+                Random.Shared.NextDouble().ToString()
+                )
+        };
     }
 }
 
